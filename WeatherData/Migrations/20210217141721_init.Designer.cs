@@ -10,7 +10,7 @@ using WeatherData;
 namespace WeatherData.Migrations
 {
     [DbContext(typeof(WeatherDataDbContext))]
-    [Migration("20210216151434_init")]
+    [Migration("20210217141721_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,10 +46,7 @@ namespace WeatherData.Migrations
                     b.Property<int>("DateId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Inside")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Outside")
+                    b.Property<string>("InsideOrOutside")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -72,9 +69,14 @@ namespace WeatherData.Migrations
                     b.Property<int>("EnviornmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MoldId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EnviornmentId");
+
+                    b.HasIndex("MoldId");
 
                     b.ToTable("Humidities");
                 });
@@ -86,20 +88,10 @@ namespace WeatherData.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("HumidityId")
-                        .HasColumnType("int");
-
                     b.Property<float>("RiskForMold")
                         .HasColumnType("real");
 
-                    b.Property<int>("TemperatureId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("HumidityId");
-
-                    b.HasIndex("TemperatureId");
 
                     b.ToTable("Molds");
                 });
@@ -114,6 +106,9 @@ namespace WeatherData.Migrations
                     b.Property<int>("EnviornmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MoldId")
+                        .HasColumnType("int");
+
                     b.Property<float>("Temp")
                         .HasColumnType("real");
 
@@ -121,15 +116,9 @@ namespace WeatherData.Migrations
 
                     b.HasIndex("EnviornmentId");
 
-                    b.ToTable("Temperatures");
+                    b.HasIndex("MoldId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EnviornmentId = 0,
-                            Temp = 0f
-                        });
+                    b.ToTable("Temperatures");
                 });
 
             modelBuilder.Entity("WeatherData.Models.Enviornment", b =>
@@ -151,26 +140,11 @@ namespace WeatherData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WeatherData.Models.Mold", null)
+                        .WithMany("Humidities")
+                        .HasForeignKey("MoldId");
+
                     b.Navigation("Enviornment");
-                });
-
-            modelBuilder.Entity("WeatherData.Models.Mold", b =>
-                {
-                    b.HasOne("WeatherData.Models.Humidity", "Humidity")
-                        .WithMany()
-                        .HasForeignKey("HumidityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WeatherData.Models.Temperature", "Temperature")
-                        .WithMany()
-                        .HasForeignKey("TemperatureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Humidity");
-
-                    b.Navigation("Temperature");
                 });
 
             modelBuilder.Entity("WeatherData.Models.Temperature", b =>
@@ -181,7 +155,18 @@ namespace WeatherData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WeatherData.Models.Mold", null)
+                        .WithMany("Temperatures")
+                        .HasForeignKey("MoldId");
+
                     b.Navigation("Enviornment");
+                });
+
+            modelBuilder.Entity("WeatherData.Models.Mold", b =>
+                {
+                    b.Navigation("Humidities");
+
+                    b.Navigation("Temperatures");
                 });
 #pragma warning restore 612, 618
         }

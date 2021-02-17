@@ -12,11 +12,13 @@ namespace WeatherData.Models
 
         // Foreign Key
 
-        public int TemperatureId { get; set; }
-        public virtual Temperature Temperature { get; set; }
+        //public int TemperatureId { get; set; }
+        //public virtual Temperature Temperature { get; set; }
 
-        public int HumidityId { get; set; }
-        public virtual Humidity Humidity { get; set; }
+        //public int HumidityId { get; set; }
+        //public virtual Humidity Humidity { get; set; }
+        public virtual ICollection<Temperature> Temperatures { get; set; }
+        public virtual ICollection<Humidity> Humidities { get; set; }
 
     }
 }

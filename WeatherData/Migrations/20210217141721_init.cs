@@ -21,13 +21,25 @@ namespace WeatherData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Molds",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RiskForMold = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Molds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Enviornments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Inside = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Outside = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InsideOrOutside = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -48,7 +60,8 @@ namespace WeatherData.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AirHumidity = table.Column<int>(type: "int", nullable: false),
-                    EnviornmentId = table.Column<int>(type: "int", nullable: false)
+                    EnviornmentId = table.Column<int>(type: "int", nullable: false),
+                    MoldId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -59,6 +72,12 @@ namespace WeatherData.Migrations
                         principalTable: "Enviornments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Humidities_Molds_MoldId",
+                        column: x => x.MoldId,
+                        principalTable: "Molds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,7 +87,8 @@ namespace WeatherData.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Temp = table.Column<float>(type: "real", nullable: false),
-                    EnviornmentId = table.Column<int>(type: "int", nullable: false)
+                    EnviornmentId = table.Column<int>(type: "int", nullable: false),
+                    MoldId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -79,39 +99,13 @@ namespace WeatherData.Migrations
                         principalTable: "Enviornments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Molds",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RiskForMold = table.Column<float>(type: "real", nullable: false),
-                    TemperatureId = table.Column<int>(type: "int", nullable: false),
-                    HumidityId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Molds", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Molds_Humidities_HumidityId",
-                        column: x => x.HumidityId,
-                        principalTable: "Humidities",
+                        name: "FK_Temperatures_Molds_MoldId",
+                        column: x => x.MoldId,
+                        principalTable: "Molds",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Molds_Temperatures_TemperatureId",
-                        column: x => x.TemperatureId,
-                        principalTable: "Temperatures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Temperatures",
-                columns: new[] { "Id", "EnviornmentId", "Temp" },
-                values: new object[] { 1, 0, 0f });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Enviornments_DateId",
@@ -124,26 +118,23 @@ namespace WeatherData.Migrations
                 column: "EnviornmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Molds_HumidityId",
-                table: "Molds",
-                column: "HumidityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Molds_TemperatureId",
-                table: "Molds",
-                column: "TemperatureId");
+                name: "IX_Humidities_MoldId",
+                table: "Humidities",
+                column: "MoldId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Temperatures_EnviornmentId",
                 table: "Temperatures",
                 column: "EnviornmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Temperatures_MoldId",
+                table: "Temperatures",
+                column: "MoldId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Molds");
-
             migrationBuilder.DropTable(
                 name: "Humidities");
 
@@ -152,6 +143,9 @@ namespace WeatherData.Migrations
 
             migrationBuilder.DropTable(
                 name: "Enviornments");
+
+            migrationBuilder.DropTable(
+                name: "Molds");
 
             migrationBuilder.DropTable(
                 name: "Dates");
