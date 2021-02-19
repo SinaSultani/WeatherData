@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WeatherData;
 using WeatherData.Models;
@@ -20,9 +21,26 @@ namespace WeatherData.Controllers
         }
 
         // GET: Dates
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            return View(await _context.Dates.ToListAsync());
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["CurrentFilter"] = searchString;
+            var dates = from s in _context.Dates
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                dates = dates.Where(s => s.TimeStamp.ToString().Contains(searchString));
+            }
+            switch (sortOrder)
+            {
+                case "Date":
+                    dates = dates.OrderBy(s => s.TimeStamp);
+                    break;
+                case "date_desc":
+                    dates = dates.OrderByDescending(s => s.TimeStamp);
+                    break;
+            }
+            return View(await dates.AsNoTracking().ToListAsync());
         }
 
         // GET: Dates/Details/5

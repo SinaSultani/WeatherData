@@ -9,6 +9,10 @@ namespace WeatherData
 {
     public class WeatherDataDbContext : DbContext
     {
+        public WeatherDataDbContext()
+        {
+        }
+
         public WeatherDataDbContext(DbContextOptions<WeatherDataDbContext> options) : base(options) { }
 
         public DbSet<Date> Dates { get; set; }
