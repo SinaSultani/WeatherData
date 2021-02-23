@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WeatherData.Models;
+using WeatherData;
 
 namespace WeatherData
 {
@@ -25,6 +26,8 @@ namespace WeatherData
         {
             modelBuilder.Seed();
         }
+
+        public DbSet<WeatherData.JoinTables> JoinTables { get; set; }
 
 
     }
